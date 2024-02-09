@@ -1,4 +1,4 @@
-from CLI import get_wd
+from CwdChecker import CwdChecker
 
 if __name__ == "__main__":
-    print(type(get_wd()))
+    checks_result = CwdChecker().do_all_checks()

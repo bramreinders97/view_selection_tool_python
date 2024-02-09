@@ -12,9 +12,11 @@ import os
 
 def get_wd() -> str:
     """
-    Return the working directory as specified in cli. Later, this working
-    dir should be recognized automatically, as the user calls `vst command`
-    from that location.
+    Return the working directory as specified in cli. If no argument is given,
+    use the current working dir
+
+    Later, this working dir should be recognized automatically, as the user
+    calls `vst command` from that location.
     """
     parser = argparse.ArgumentParser(
         prog='View Selection Tool',
@@ -28,4 +30,7 @@ def get_wd() -> str:
 
     root_wd = args.root_working_dir
 
-    return os.path.normpath(root_wd)
+    if root_wd:
+        return os.path.normpath(root_wd)
+    else:
+        return os.getcwd()
