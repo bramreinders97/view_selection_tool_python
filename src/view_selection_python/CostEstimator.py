@@ -1,0 +1,2 @@
+class CostEstimator:
+    pass

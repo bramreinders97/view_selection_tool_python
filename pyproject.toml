@@ -5,13 +5,18 @@ version = "0.1.0"
 description = "View Selection Tool for dbt"
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/<your-username>/hypermodern-python"
-repository = "https://github.com/<your-username>/hypermodern-python"
+homepage = "https://github.com/bramreinders97/python_part_view_selection"
+repository = "https://github.com/bramreinders97/python_part_view_selection"
 keywords = ["view", "selection"]
-authors = ["Bram Reinders bram.reinders@blenddata.nl"]
+authors = ["Bram Reinders <bram.reinders@blenddata.nl>"]
 
 [tool.poetry.dependencies]
 python = "^3.11.5"
+click = "^8.1.7"
+ruamel-yaml = "^0.18.6"
+
+[tool.poetry.scripts]
+view-selection-tool = "view_selection_python.console:main"
 
 [tool.poetry.dev-dependencies]
 
