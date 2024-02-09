@@ -7,6 +7,7 @@ in the cli.
 """
 
 import argparse
+import os
 
 
 def get_wd() -> str:
@@ -25,4 +26,6 @@ def get_wd() -> str:
 
     args = parser.parse_args()
 
-    return args.root_working_dir
+    root_wd = args.root_working_dir
+
+    return os.path.normpath(root_wd)
