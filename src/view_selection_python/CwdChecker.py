@@ -1,22 +1,8 @@
 import os
 from CLI import get_wd
 from typing import List
-
-# Define error messages
-ERROR_DBT_PROJECT_NOT_FOUND = "This command must be called from inside a dbt project. " \
-                              "However, a `dbt_project.yml` or `dbt_project.yaml` file was not found " \
-                              "in the current working directory."
-ERROR_VST_NOT_INSTALLED = "It seems like the dbt package `view_selection_tool` is not installed " \
-                          "in your dbt project. Please make sure it is installed.\n" \
-                          "Note that this command should be run from the root folder of your dbt project. " \
-                          "If the package is installed correctly, the following path should be present: " \
-                          "`dbt_packages/view_selection_tool`."
-ERROR_PROFILES_NOT_FOUND = "The current working directory should contain a file called `profiles.yml` " \
-                           "or `profiles.yaml`. However, no such file was found in the working directory."
-PROFILE_PATH_NOT_SET_WARNING = "The profile path has not been recognized correctly. This is either due to " \
-                            "necessary checks on the environment failing, or not being performed.\n" \
-                            "Make sure that the do_all_checks() function runs without raising any errors, " \
-                            "this will ensure that we obtain the correct file path."
+from Exceptions.errors import ERROR_PROFILES_NOT_FOUND, ERROR_DBT_PROJECT_NOT_FOUND, ERROR_VST_NOT_INSTALLED
+from Exceptions.warnings import PROFILE_PATH_NOT_SET_WARNING
 
 
 class CwdChecker:
@@ -30,7 +16,7 @@ class CwdChecker:
         """
         Check if any of the provided file names exist in the current working directory.
         If not, raise a RuntimeError with the provided error message.
-        If found, return the path of the first existing file.
+        If found, return the path of the correct path.
         """
         for file_name in file_names:
             file_path = os.path.join(self.cwd, file_name)
