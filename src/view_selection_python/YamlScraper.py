@@ -15,11 +15,13 @@ def _check_content(required_key: str, content_to_check: CommentedMap, error_msg:
 
 
 class YamlScraper:
-    """
-    TODO: am not entirely happy with the hardcoding of the keys of the CommentedMap throughout the class
-    """
-    def __init__(self, filepath):
+    def __init__(self, filepath: str, profile_name_key: str = 'view_selection_tool',
+                 outputs_key: str = 'outputs', target_name_key: str = 'default'):
+
         self.filepath = filepath
+        self.profile_key = profile_name_key
+        self.outputs_key = outputs_key
+        self.target_key = target_name_key
         self.contents = self._read_contents()
         self._do_checks()
 
@@ -35,37 +37,37 @@ class YamlScraper:
         Check if there is a profile called `view_selection_tool`.
         Raise error if not.
         """
-        _check_content('view_selection_tool', self.contents, NO_VST_PROFILE_ERROR)
+        _check_content(self.profile_key, self.contents, NO_VST_PROFILE_ERROR)
 
     def _has_outputs(self):
         """
         Verify that `outputs` is mentioned in the profiles.yml is like this:
         view_selection_tool -> outputs
         """
-        _check_content('outputs', self.contents['view_selection_tool'], NO_OUTPUTS_ERROR)
+        _check_content(self.outputs_key, self.contents[self.profile_key], NO_OUTPUTS_ERROR)
 
     def _has_default(self):
         """
         Verify that `default` is mentioned in the profiles.yml is like this:
         view_selection_tool -> outputs -> default
         """
-        _check_content('default', self.contents['view_selection_tool']['outputs'], NO_DEFAULT_ERROR)
+        _check_content(self.target_key, self.contents[self.profile_key][self.outputs_key], NO_DEFAULT_ERROR)
 
     def _check_if_all_db_creds_present(self):
         """Check if all necessary creds are present. Raise error if not"""
         needed_creds = ['host', 'port', 'user', 'password', 'dbname', 'schema']
-        db_creds = self.contents['view_selection_tool']['outputs']['default']
+        db_creds = self.contents[self.profile_key][self.outputs_key][self.target_key]
 
         for needed_cred in needed_creds:
             _check_content(
                 required_key=needed_cred,
                 content_to_check=db_creds,
-                error_msg=MISSING_CRED_ERROR.replace('REPLACE', needed_cred)
+                error_msg=MISSING_CRED_ERROR.format(credential=needed_cred)
             )
 
     def _check_if_postgres(self):
         """Check if the specified type is `postgres`, if not raise an error"""
-        if self.contents['view_selection_tool']['outputs']['default']['type'] != 'postgres':
+        if self.contents[self.profile_key][self.outputs_key][self.target_key]['type'] != 'postgres':
             raise ValueError(
                 NOT_POSTGRES_ERROR
             )
@@ -82,4 +84,4 @@ class YamlScraper:
 
     def extract_db_creds(self) -> CommentedMap:
         """Return the credentials of the db"""
-        return self.contents['view_selection_tool']['outputs']['default']
+        return self.contents[self.profile_key][self.outputs_key][self.target_key]

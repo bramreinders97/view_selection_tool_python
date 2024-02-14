@@ -14,6 +14,7 @@ authors = ["Bram Reinders <bram.reinders@blenddata.nl>"]
 python = "^3.11.5"
 click = "^8.1.7"
 ruamel-yaml = "^0.18.6"
+psycopg2 = "^2.9.9"
 
 [tool.poetry.scripts]
 view-selection-tool = "view_selection_python.console:main"

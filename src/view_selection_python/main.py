@@ -1,6 +1,6 @@
 from CwdChecker import CwdChecker
 from YamlScraper import YamlScraper
-import os
+from PostgresHandler import PostgresHandler
 
 
 if __name__ == "__main__":
@@ -10,4 +10,14 @@ if __name__ == "__main__":
 
     yml_scraper = YamlScraper(profiles_yml_path)
 
-    print(yml_scraper.extract_db_creds())
+    db_creds = yml_scraper.extract_db_creds()
+
+    postgres = PostgresHandler(db_creds)
+
+    all_models_and_code = postgres.get_models_and_code()
+
+    for model, code in all_models_and_code:
+        print(model)
+        print(postgres.get_output_explain(code))
+        print()
+
