@@ -1,9 +1,14 @@
 import psycopg2
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 from ruamel.yaml.comments import CommentedMap
 from Exceptions.errors import NOT_ALL_TABLES_IN_VST_SCHEMA_ERROR
 
-REQUIRED_TABLES = ['fct_avg_maintenance_fractions', 'fct_all_models_plus_code']
+REQUIRED_TABLES = [
+    'fct_avg_maintenance_fractions',
+    'fct_all_models_plus_code',
+    'fct_destination_nodes',
+    'fct_model_dependencies'
+]
 
 
 class PostgresHandler:
@@ -65,21 +70,21 @@ class PostgresHandler:
                 )
             )
 
-    def get_models_and_code(self) -> List[Tuple[str, str]]:
-        """Return all models and their compiled code as represented in `fct_all_models_plus_code`"""
+    def get_table_content(self, table_name: str) -> List[Tuple]:
+        """Return all tuples from the table `table_name`"""
         self._open_connection()
 
         query = "SELECT * " + \
-                f"FROM {self.db_schema}.fct_all_models_plus_code;"
+                f"FROM {self.db_schema}.{table_name};"
 
         self.cursor.execute(query)
-        models_and_code = self.cursor.fetchall()
+        all_rows = self.cursor.fetchall()
         self._close_connection()
 
-        return models_and_code
+        return all_rows
 
-    def get_output_explain(self, query_to_explain: str):
-        # Execute the EXPLAIN statement and fetch the query plan
+    def get_output_explain(self, query_to_explain: str) -> List[Dict]:
+        """Execute the EXPLAIN statement on `query_to_explain` and return the query plan in JSON format"""
         self._open_connection()
 
         explain_query = f"EXPLAIN (FORMAT JSON) {query_to_explain}"
@@ -87,5 +92,7 @@ class PostgresHandler:
         self.cursor.execute(explain_query)
 
         query_plan = self.cursor.fetchone()[0]
+
+        self._close_connection()
 
         return query_plan
