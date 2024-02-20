@@ -34,6 +34,8 @@ class SQLRewriter:
         self.destination_nodes = destination_nodes
         self.model_dependencies = model_dependencies
 
+        self.alias_counter = 0
+
         self.original_model_dict = {}
         self._fill_initial_dict()
 
@@ -82,7 +84,7 @@ class SQLRewriter:
 
         Update to:
 
-            ... FROM ( SQL Code from `model_whose_code_to_insert` ) ...
+            ... FROM ( SQL Code from `model_whose_code_to_insert` ) AS alias{alias_counter}...
         """
         current_code = self.updated_dict[model_whose_code_to_update]['code']
 
@@ -90,8 +92,10 @@ class SQLRewriter:
         sql_model_whose_code_to_insert = self.updated_dict[model_whose_code_to_insert]['code']
 
         new_code = current_code.replace(
-            in_code_ref, f"( {sql_model_whose_code_to_insert} )"
+            in_code_ref, f"( {sql_model_whose_code_to_insert} ) AS alias{self.alias_counter} "
         )
+
+        self.alias_counter += 1
 
         self.updated_dict[model_whose_code_to_update]['code'] = new_code
 
