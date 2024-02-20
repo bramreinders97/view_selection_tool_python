@@ -2,6 +2,7 @@ from CwdChecker import CwdChecker
 from YamlScraper import YamlScraper
 from PostgresHandler import PostgresHandler
 from SQLRewriter import SQLRewriter
+from CostEstimator import CostEstimator
 
 
 if __name__ == "__main__":
@@ -21,6 +22,18 @@ if __name__ == "__main__":
 
     sql_rewrite = SQLRewriter(all_models_and_code, destination_nodes, model_dependencies)
 
+    # get postgres output with updated code
+    new_code = sql_rewrite.get_updated_code_per_model()['model.dbt_chatGPT_suggestion.grouped_transactions_unioned_with_original']['code']
+    # new_code =sql_rewrite.get_updated_code_per_model()['model.dbt_chatGPT_suggestion.stg_accounts']['code']
+    explain_output = postgres.get_output_explain(new_code)
+
+    cost_estimator = CostEstimator()
+    cost_estimator.estimate_cost(explain_output)
+
+    print(cost_estimator.get_storage_cost())
+    print(cost_estimator.get_execution_cost())
+
+
     # get postgres output as before
     # for model, code in all_models_and_code:
     #     # if model == 'model.dbt_chatGPT_suggestion.int_accounts_and_groups_joined':
@@ -30,6 +43,3 @@ if __name__ == "__main__":
 
     # print(code)
     #
-    # get postgres output with updated code
-    new_code = sql_rewrite.get_updated_code_per_model()['model.dbt_chatGPT_suggestion.grouped_transactions_unioned_with_original']['code']
-    print(new_code)

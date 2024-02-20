@@ -1,2 +1,73 @@
+from typing import List, Dict, Tuple
+
+
+def _check_for_subplans(plan: Dict) -> bool:
+    """Check if the plan contains subplans."""
+    return 'Plans' in plan
+
+
+def _calculate_cost(expected_rows: float, expected_width: float) -> float:
+    """Calculate the cost based on expected rows and width."""
+    return expected_rows * expected_width
+
+
+def _read_plan_contents(plan: Dict) -> Tuple[float, float, List[Dict] | None]:
+    """Extract expected rows, width, and subplans from the plan."""
+    expected_rows = plan['Plan Rows']
+    expected_width = plan['Plan Width']
+
+    subplans = plan['Plans'] if _check_for_subplans(plan) else None
+
+    return expected_rows, expected_width, subplans
+
+
+def _extract_plan_from_list(list_with_plan: List[Dict]):
+    """Extract the plan from a list"""
+    return list_with_plan[0]['Plan']
+
+
 class CostEstimator:
-    pass
+    def __init__(self):
+        self.storage_cost = 0
+        self.execution_cost = 0
+
+    def _update_storage_cost(self, cost: float):
+        """Update the storage cost."""
+        self.storage_cost += cost
+
+    def _update_execution_cost(self, cost: float):
+        """Update the execution cost."""
+        self.execution_cost += cost
+
+    def _update_costs(self, cost: float, is_root_of_plan: bool):
+        """Update both storage and execution costs, storage cost only if it's the root of the plan."""
+        if is_root_of_plan:
+            self._update_storage_cost(cost)
+
+        self._update_execution_cost(cost)
+
+    def estimate_cost(self, plan: List[Dict] | Dict, is_root_of_plan: bool = True):
+        """
+        Estimate costs based on the provided plan, by extracting the E[#rows]
+        and the E[width] of each row. Do this recursively over all subplans, to
+        get all the relevant costs.
+        """
+        if isinstance(plan, List):
+            plan = _extract_plan_from_list(plan)
+
+        expected_rows, expected_width, subplans = _read_plan_contents(plan)
+        cost = _calculate_cost(expected_rows, expected_width)
+
+        self._update_costs(cost, is_root_of_plan=is_root_of_plan)
+
+        if subplans:
+            for subplan in subplans:
+                self.estimate_cost(subplan, is_root_of_plan=False)
+
+    def get_storage_cost(self) -> float:
+        """Return the total storage cost."""
+        return self.storage_cost
+
+    def get_execution_cost(self) -> float:
+        """Return the total execution cost."""
+        return self.execution_cost
