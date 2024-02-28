@@ -12,69 +12,39 @@ This is done by recursively updating a dict of the form
     model_id:
         {
             code: CODE,
+            referenced_by: []
             depends_on: [model_id, model_id]
             compiled_code_reference: "db_name"."schema_name"."alias"
         }
 }
 """
 
-import ast
-from copy import deepcopy
+
 from typing import Dict, Tuple, List
 
 
 class SQLRewriter:
-    def __init__(
-            self,
-            models_and_code: List[Tuple[str, str]],
-            destination_nodes: List[Tuple[str]],
-            model_dependencies: List[Tuple[str, str, str]]
-    ):
-        self.models_and_code = models_and_code
-        self.destination_nodes = destination_nodes
-        self.model_dependencies = model_dependencies
-
+    def __init__(self, model_info_dict: Dict[str, Dict], destination_nodes: List[Tuple[str]]):
         self.alias_counter = 0
+        self.updated_dict = model_info_dict
+        self.destination_nodes = destination_nodes
 
-        self.original_model_dict = {}
-        self._fill_initial_dict()
-
-        self.updated_dict = deepcopy(self.original_model_dict)
-
-    def _create_skeleton_from_models_and_code(self):
+    def _keep_track_of_downstream_dependency(self, upstream_model_id: str, downstream_model_id: str):
         """
-        Create skeleton of dict:
+        Having a clear view of the dependencies n the DAG in both directions will be of
+        great importance when calculating the costs of models. Therefore, this info should
+        be kept track of
+
+        Include info on the downstream reference of a model by filling in:
         {
-            model_id:
+            upstream_model_id:
                 {
-                    code: CODE
+                    referenced_by: [downstream_model_id]
                 }
         }
         """
-        for model_id, compiled_code in self.models_and_code:
-            self.original_model_dict[model_id] = {'code': compiled_code}
-
-    def _include_info_model_dependencies(self):
-        """
-        Add model dependencies and compiled_code_references:
-        {
-            model_id:
-                {
-                    code: CODE
-                    depends_on: [model_id, model_id]
-                    compiled_code_reference: "db_name"."schema_name"."alias"
-                }
-        }
-        """
-        for model_id, dependencies, compiled_code_ref in self.model_dependencies:
-            model_id_dict = self.original_model_dict[model_id]
-            model_id_dict['depends_on'] = ast.literal_eval(dependencies)
-            model_id_dict['compiled_code_reference'] = compiled_code_ref
-
-    def _fill_initial_dict(self):
-        """Make sure the dict is filled with the default compiled code"""
-        self._create_skeleton_from_models_and_code()
-        self._include_info_model_dependencies()
+        if upstream_model_id in self.updated_dict:
+            self.updated_dict[upstream_model_id]['referenced_by'].append(downstream_model_id)
 
     def _replace_ref_with_sql(self, model_whose_code_to_update: str, model_whose_code_to_insert: str):
         """
@@ -123,6 +93,12 @@ class SQLRewriter:
                 # on the DAG twice if we'd arrive at a certain node from two different directions
                 next_dependency = self.updated_dict[model_id]['depends_on'].pop()
 
+                # Make sure that we also know which models are immediately downstream in the DAG
+                self._keep_track_of_downstream_dependency(
+                    upstream_model_id=next_dependency,
+                    downstream_model_id=model_id
+                )
+
                 if self._check_if_code_should_update(next_dependency):
 
                     self._replace_ref_with_sql(
@@ -132,7 +108,7 @@ class SQLRewriter:
 
         return current_node_is_a_model
 
-    def _update_all_sql_code(self):
+    def update_all_sql_code(self):
         """
         We call _check_if_code_should_update() for each destination node. This recursively
         updates the code for that destination node, and all its predecessors. See
@@ -142,8 +118,3 @@ class SQLRewriter:
         """
         for destination_node_id_tuple in self.destination_nodes:
             _ = self._check_if_code_should_update(destination_node_id_tuple[0])
-
-    def get_updated_code_per_model(self) -> Dict[str, Dict]:
-        """Return the updates dict"""
-        self._update_all_sql_code()
-        return self.updated_dict

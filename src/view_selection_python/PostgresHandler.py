@@ -70,29 +70,40 @@ class PostgresHandler:
                 )
             )
 
-    def get_table_content(self, table_name: str) -> List[Tuple]:
-        """Return all tuples from the table `table_name`"""
+    def _execute_query(self, query) -> List[Tuple]:
+        """Return all tuples from the provided query"""
         self._open_connection()
-
-        query = "SELECT * " + \
-                f"FROM {self.db_schema}.{table_name};"
 
         self.cursor.execute(query)
         all_rows = self.cursor.fetchall()
-        self._close_connection()
 
+        self._close_connection()
         return all_rows
+
+    def _get_table_content(self, table_name: str) -> List[Tuple]:
+        """Return all tuples from the table `table_name`"""
+        query = "SELECT * " + \
+                f"FROM {self.db_schema}.{table_name};"
+        result = self._execute_query(query)
+        return result
+
+    def get_all_models_and_code(self) -> List[Tuple[str]]:
+        return self._get_table_content('fct_all_models_plus_code')
+
+    def get_destination_nodes(self) -> List[Tuple[str]]:
+        return self._get_table_content('fct_destination_nodes')
+
+    def get_model_dependencies(self) -> List[Tuple[str]]:
+        return self._get_table_content('fct_model_dependencies')
+
+    def get_storage_space_left(self) -> int:
+        """Return the #bytes left in the DB at this moment in time"""
+        query = f"SELECT pg_database_size('{self.db_name}');"
+        bytes_left = self._execute_query(query)[0][0]
+        return bytes_left
 
     def get_output_explain(self, query_to_explain: str) -> List[Dict]:
         """Execute the EXPLAIN statement on `query_to_explain` and return the query plan in JSON format"""
-        self._open_connection()
-
         explain_query = f"EXPLAIN (FORMAT JSON) {query_to_explain}"
-
-        self.cursor.execute(explain_query)
-
-        query_plan = self.cursor.fetchone()[0]
-
-        self._close_connection()
-
+        query_plan = self._execute_query(explain_query)[0][0]
         return query_plan

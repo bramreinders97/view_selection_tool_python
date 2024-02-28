@@ -26,8 +26,17 @@ def _extract_plan_from_list(list_with_plan: List[Dict]):
     return list_with_plan[0]['Plan']
 
 
-class CostEstimator:
+class CostEstimatorSinglePlan:
+    """
+    This class estimates the cost of a single model.
+
+    This is done by traversing through the entire query plan as obtained by calling
+    EXPLAIN in postgres
+    """
     def __init__(self):
+        self._reset_costs()
+
+    def _reset_costs(self):
         self.storage_cost = 0
         self.execution_cost = 0
 
@@ -46,12 +55,15 @@ class CostEstimator:
 
         self._update_execution_cost(cost)
 
-    def estimate_cost(self, plan: List[Dict] | Dict, is_root_of_plan: bool = True):
+    def estimate_costs(self, plan: List[Dict] | Dict, is_root_of_plan: bool = True) -> Tuple[float, float]:
         """
         Estimate costs based on the provided plan, by extracting the E[#rows]
         and the E[width] of each row. Do this recursively over all subplans, to
         get all the relevant costs.
         """
+        if is_root_of_plan:
+            self._reset_costs()
+
         if isinstance(plan, List):
             plan = _extract_plan_from_list(plan)
 
@@ -62,12 +74,6 @@ class CostEstimator:
 
         if subplans:
             for subplan in subplans:
-                self.estimate_cost(subplan, is_root_of_plan=False)
+                self.estimate_costs(subplan, is_root_of_plan=False)
 
-    def get_storage_cost(self) -> float:
-        """Return the total storage cost."""
-        return self.storage_cost
-
-    def get_execution_cost(self) -> float:
-        """Return the total execution cost."""
-        return self.execution_cost
+        return self.storage_cost, self.execution_cost
