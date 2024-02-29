@@ -38,22 +38,22 @@ class CostEstimatorSinglePlan:
 
     def _reset_costs(self):
         self.storage_cost = 0
-        self.execution_cost = 0
+        self.creation_cost = 0
 
     def _update_storage_cost(self, cost: float):
         """Update the storage cost."""
         self.storage_cost += cost
 
-    def _update_execution_cost(self, cost: float):
-        """Update the execution cost."""
-        self.execution_cost += cost
+    def _update_creation_cost(self, cost: float):
+        """Update the creation cost."""
+        self.creation_cost += cost
 
     def _update_costs(self, cost: float, is_root_of_plan: bool):
-        """Update both storage and execution costs, storage cost only if it's the root of the plan."""
+        """Update both storage and creation costs, storage cost only if it's the root of the plan."""
         if is_root_of_plan:
             self._update_storage_cost(cost)
 
-        self._update_execution_cost(cost)
+        self._update_creation_cost(cost)
 
     def estimate_costs(self, plan: List[Dict] | Dict, is_root_of_plan: bool = True) -> Tuple[float, float]:
         """
@@ -76,4 +76,4 @@ class CostEstimatorSinglePlan:
             for subplan in subplans:
                 self.estimate_costs(subplan, is_root_of_plan=False)
 
-        return self.storage_cost, self.execution_cost
+        return self.storage_cost, self.creation_cost

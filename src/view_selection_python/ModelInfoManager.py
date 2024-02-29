@@ -59,27 +59,58 @@ class ModelInfoManager:
         sql_rewriter = SQLRewriter(self.model_info_dict, self.postgres_handler.get_destination_nodes())
         sql_rewriter.update_all_sql_code()
 
-    def _retrieve_storage_and_execution_cost(self, model: str) -> Tuple[float, float]:
-        """Return the storage and execution cost of a model"""
+    def _retrieve_storage_and_creation_cost(self, model: str) -> Tuple[float, float]:
+        """Return the storage and creation cost of a model"""
         explain_friendly_code = self.model_info_dict[model]['code']
         query_plan = self.postgres_handler.get_output_explain(explain_friendly_code)
         return CostEstimatorSinglePlan().estimate_costs(query_plan)
 
     def _add_costs_per_model(self):
         """
-        Add storage and execution cost to the info dict:
+        Add storage and creation cost to the info dict:
         {
             model_id:
                 {
                     storage_cost: storage_cost
-                    execution_cost: execution_cost
+                    creation_cost: creation_cost
                 }
         }
         """
         for model, info in self.model_info_dict.items():
-            storage_cost, execution_cost = self._retrieve_storage_and_execution_cost(model)
+            storage_cost, creation_cost = self._retrieve_storage_and_creation_cost(model)
             info['storage_cost'] = storage_cost
-            info['execution_cost'] = execution_cost
+            info['creation_cost'] = creation_cost
+
+    def _retrieve_maintenance_fractions(self) -> List[Tuple[str]]:
+        """Return all maintenance fractions as obtained from the DB"""
+        return self.postgres_handler.get_maintenance_fractions()
+
+    def _fill_with_default_mf(self):
+        """
+        Fill dict with default maintenance fraction values (=1):
+        {
+            model_id:
+                {
+                    maintenance_fraction: 1
+                }
+        }
+        """
+        for _, info in self.model_info_dict.items():
+            info['maintenance_fraction'] = 1
+
+    def _include_maintenance_fractions(self):
+        """
+        Add available maintenance fractions to the dict:
+        {
+            model_id:
+                {
+                    maintenance_fraction: maintenance_fraction
+                }
+        }
+        """
+        available_maintenance_fractions = self._retrieve_maintenance_fractions()
+        for model, mf in available_maintenance_fractions:
+            self.model_info_dict[model]['maintenance_fraction'] = mf if mf is not None else 1
 
     def _fill_dict(self):
         """Fill the dict with all relevant info"""
@@ -87,6 +118,8 @@ class ModelInfoManager:
         self._include_info_model_dependencies()
         self._rewrite_sql()
         self._add_costs_per_model()
+        self._fill_with_default_mf()
+        self._include_maintenance_fractions()
 
     def get_model_info_dict(self) -> Dict[str, Dict]:
         """Return the model info dictionary"""

@@ -80,9 +80,9 @@ class PostgresHandler:
         self._close_connection()
         return all_rows
 
-    def _get_table_content(self, table_name: str) -> List[Tuple]:
+    def _get_table_content(self, table_name: str, cols: str = '*') -> List[Tuple]:
         """Return all tuples from the table `table_name`"""
-        query = "SELECT * " + \
+        query = f"SELECT {cols} " + \
                 f"FROM {self.db_schema}.{table_name};"
         result = self._execute_query(query)
         return result
@@ -95,6 +95,9 @@ class PostgresHandler:
 
     def get_model_dependencies(self) -> List[Tuple[str]]:
         return self._get_table_content('fct_model_dependencies')
+
+    def get_maintenance_fractions(self) -> List[Tuple[str]]:
+        return self._get_table_content('fct_avg_maintenance_fractions', cols='model_id, avg_maintenance_fraction')
 
     def get_storage_space_left(self) -> int:
         """Return the #bytes left in the DB at this moment in time"""
