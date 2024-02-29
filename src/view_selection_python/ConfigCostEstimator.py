@@ -16,7 +16,7 @@ class ConfigCostEstimator:
         self.destination_nodes = destination_nodes
         self.current_config_fudge_factors = None
 
-    def _get_fudge_factors_current_config(self, config: Tuple[str]) -> Dict[str, int]:
+    def _get_fudge_factors_current_config(self, config: None | Tuple[str]) -> Dict[str, int]:
         """
         Return a dict of the form
         {

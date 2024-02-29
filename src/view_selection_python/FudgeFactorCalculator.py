@@ -41,7 +41,7 @@ class FudgeFactorCalculator:
      - the amount of nodes it lies from a materialized model
      - the number of outgoing edges that materialized model has
     """
-    def __init__(self, config: Tuple[str], models_info_dict: Dict[str, Dict]):
+    def __init__(self, config: None | Tuple[str], models_info_dict: Dict[str, Dict]):
         self.config = config
         self.models_info_dict = models_info_dict
         self.fudge_factor_dict = self._get_dict_template()

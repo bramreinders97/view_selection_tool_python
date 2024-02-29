@@ -157,8 +157,6 @@ class ModelInfoManager:
         self._fill_with_default_mf()
         self._include_maintenance_fractions()
 
-        print(self.model_info_dict)
-
     def get_model_info_dict(self) -> Dict[str, Dict]:
         """Return the model info dictionary"""
         return self.model_info_dict
