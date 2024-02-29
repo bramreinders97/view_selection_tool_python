@@ -5,6 +5,14 @@ from ast import literal_eval
 from typing import List, Tuple, Dict, KeysView
 
 
+def _fill_depends_on(downstream_model_info: Dict, dependencies: List[str]):
+    downstream_model_info['depends_on'] = dependencies
+
+
+def _fill_in_compiled_code_ref(downstream_model_info: Dict, compiled_code_ref: str):
+    downstream_model_info['compiled_code_reference'] = compiled_code_ref
+
+
 class ModelInfoManager:
     def __init__(self, postgres_handler: PostgresHandler):
         self.postgres_handler = postgres_handler
@@ -27,13 +35,28 @@ class ModelInfoManager:
         for model_id, compiled_code in models_and_code:
             self.model_info_dict[model_id] = {'code': compiled_code, 'referenced_by': []}
 
-    def _fill_depends_on(self, upstream_model: str, downstream_models: List[str]):
-        # TODO make this happen here
-        pass
+    def _update_referenced_by(self, downstream_model_id: str, upstream_model_ids: List[str]):
+        """
+        Add references to downstream models in the dict
+        {
+            upstream_model_id:
+                {
+                    referenced_by: [downstream_model_id]
+                }
+        }
+        """
+        for upstream_model_id in upstream_model_ids:
 
-    def _update_referenced_by(self):
-        # TODO make this happen here, and remove that action from the other recursive stuff happening
-        pass
+            # If the upstream node is a source node, we don't have to store anything,
+            # Considering that we don't include any info about source nodes in the info dict
+            current_node_is_a_model = upstream_model_id in self.model_info_dict
+            if current_node_is_a_model:
+
+                # If the dependency under investigation is recorded already,
+                # we do not have to record it again
+                currently_known_references = self.model_info_dict[upstream_model_id]['referenced_by']
+                if downstream_model_id not in currently_known_references:
+                    currently_known_references.append(downstream_model_id)
 
     def _include_info_model_dependencies(self):
         """
@@ -41,7 +64,6 @@ class ModelInfoManager:
         {
             model_id:
                 {
-                    code: CODE
                     referenced_by: []
                     depends_on: [model_id, model_id]
                     compiled_code_reference: "db_name"."schema_name"."alias"
@@ -49,10 +71,24 @@ class ModelInfoManager:
         }
         """
         model_dependencies = self.postgres_handler.get_model_dependencies()
-        for model_id, dependencies, compiled_code_ref in model_dependencies:
+        for model_id, dependencies_str, compiled_code_ref in model_dependencies:
             model_id_dict = self.model_info_dict[model_id]
-            model_id_dict['depends_on'] = literal_eval(dependencies)
-            model_id_dict['compiled_code_reference'] = compiled_code_ref
+            dependencies_list = literal_eval(dependencies_str)
+
+            self._update_referenced_by(
+                downstream_model_id=model_id,
+                upstream_model_ids=dependencies_list
+            )
+
+            _fill_depends_on(
+                downstream_model_info=model_id_dict,
+                dependencies=dependencies_list
+            )
+
+            _fill_in_compiled_code_ref(
+                downstream_model_info=model_id_dict,
+                compiled_code_ref=compiled_code_ref
+            )
 
     def _rewrite_sql(self):
         """Rewrite the sql of the models using SQLRewriter"""
@@ -120,6 +156,8 @@ class ModelInfoManager:
         self._add_costs_per_model()
         self._fill_with_default_mf()
         self._include_maintenance_fractions()
+
+        print(self.model_info_dict)
 
     def get_model_info_dict(self) -> Dict[str, Dict]:
         """Return the model info dictionary"""

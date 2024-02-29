@@ -29,23 +29,6 @@ class SQLRewriter:
         self.updated_dict = model_info_dict
         self.destination_nodes = destination_nodes
 
-    def _keep_track_of_downstream_dependency(self, upstream_model_id: str, downstream_model_id: str):
-        """
-        Having a clear view of the dependencies n the DAG in both directions will be of
-        great importance when calculating the costs of models. Therefore, this info should
-        be kept track of
-
-        Include info on the downstream reference of a model by filling in:
-        {
-            upstream_model_id:
-                {
-                    referenced_by: [downstream_model_id]
-                }
-        }
-        """
-        if upstream_model_id in self.updated_dict:
-            self.updated_dict[upstream_model_id]['referenced_by'].append(downstream_model_id)
-
     def _replace_ref_with_sql(self, model_whose_code_to_update: str, model_whose_code_to_insert: str):
         """
         Say the code of `model_whose_code_to_update` looks like this:
@@ -92,12 +75,6 @@ class SQLRewriter:
                 # By popping the dependencies, we make sure that we won't traverse the same path
                 # on the DAG twice if we'd arrive at a certain node from two different directions
                 next_dependency = self.updated_dict[model_id]['depends_on'].pop()
-
-                # Make sure that we also know which models are immediately downstream in the DAG
-                self._keep_track_of_downstream_dependency(
-                    upstream_model_id=next_dependency,
-                    downstream_model_id=model_id
-                )
 
                 if self._check_if_code_should_update(next_dependency):
 
