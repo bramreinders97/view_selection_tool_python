@@ -4,10 +4,10 @@ from ruamel.yaml.comments import CommentedMap
 from Exceptions.errors import NOT_ALL_TABLES_IN_VST_SCHEMA_ERROR
 
 REQUIRED_TABLES = [
-    'fct_avg_maintenance_fractions',
-    'fct_all_models_plus_code',
-    'fct_destination_nodes',
-    'fct_model_dependencies'
+    'avg_maintenance_fractions',
+    'all_models_plus_code',
+    'destination_nodes',
+    'model_dependencies'
 ]
 
 
