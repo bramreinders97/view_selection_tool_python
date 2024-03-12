@@ -1,5 +1,6 @@
-from ViewSelectionAdvisor import ViewSelectionAdvisor
+"""Call ViewSelectionAdvisor.advise()."""
 
+from ViewSelectionAdvisor import ViewSelectionAdvisor
 
 if __name__ == "__main__":
 

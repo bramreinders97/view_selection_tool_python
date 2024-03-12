@@ -1,9 +1,11 @@
-from typing import List, Dict, Tuple
+"""CostEstimatorSinglePlan class."""
+
+from typing import Dict, List, Tuple
 
 
 def _check_for_subplans(plan: Dict) -> bool:
     """Check if the plan contains subplans."""
-    return 'Plans' in plan
+    return "Plans" in plan
 
 
 def _calculate_cost(expected_rows: float, expected_width: float) -> float:
@@ -13,30 +15,32 @@ def _calculate_cost(expected_rows: float, expected_width: float) -> float:
 
 def _read_plan_contents(plan: Dict) -> Tuple[float, float, List[Dict] | None]:
     """Extract expected rows, width, and subplans from the plan."""
-    expected_rows = plan['Plan Rows']
-    expected_width = plan['Plan Width']
+    expected_rows = plan["Plan Rows"]
+    expected_width = plan["Plan Width"]
 
-    subplans = plan['Plans'] if _check_for_subplans(plan) else None
+    subplans = plan["Plans"] if _check_for_subplans(plan) else None
 
     return expected_rows, expected_width, subplans
 
 
-def _extract_plan_from_list(list_with_plan: List[Dict]):
-    """Extract the plan from a list"""
-    return list_with_plan[0]['Plan']
+def _extract_plan_from_list(list_with_plan: List[Dict]) -> Dict:
+    """Extract the plan from a list."""
+    return list_with_plan[0]["Plan"]
 
 
 class CostEstimatorSinglePlan:
-    """
-    This class estimates the cost of a single model.
+    """This class estimates the cost of a single model.
 
     This is done by traversing through the entire query plan as obtained by calling
     EXPLAIN in postgres
     """
+
     def __init__(self):
+        """Initialize the class."""
         self._reset_costs()
 
     def _reset_costs(self):
+        """Reset the storage and execution cost."""
         self.storage_cost = 0
         self.creation_cost = 0
 
@@ -49,17 +53,22 @@ class CostEstimatorSinglePlan:
         self.creation_cost += cost
 
     def _update_costs(self, cost: float, is_root_of_plan: bool):
-        """Update both storage and creation costs, storage cost only if it's the root of the plan."""
+        """Update both storage and creation costs.
+
+        However, storage cost should only be updated if it's the root of the plan.
+        """
         if is_root_of_plan:
             self._update_storage_cost(cost)
 
         self._update_creation_cost(cost)
 
-    def estimate_costs(self, plan: List[Dict] | Dict, is_root_of_plan: bool = True) -> Tuple[float, float]:
-        """
-        Estimate costs based on the provided plan, by extracting the E[#rows]
-        and the E[width] of each row. Do this recursively over all subplans, to
-        get all the relevant costs.
+    def estimate_costs(
+        self, plan: List[Dict] | Dict, is_root_of_plan: bool = True
+    ) -> Tuple[float, float]:
+        """Estimate costs based on the provided plan.
+
+        This is done by extracting the E[#rows] and the E[width] of each row.
+        Do this recursively over all subplans, to get all the relevant costs.
         """
         if is_root_of_plan:
             self._reset_costs()

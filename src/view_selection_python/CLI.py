@@ -19,12 +19,16 @@ def get_wd() -> str:
     calls `vst command` from that location.
     """
     parser = argparse.ArgumentParser(
-        prog='View Selection Tool',
-        description='Advice on which models to materialize in dbt')
+        prog="View Selection Tool",
+        description="Advice on which models to materialize in dbt",
+    )
 
-    parser.add_argument('-rwd', '--root_working_dir',
-                        type=str,
-                        help='The path to use as root working directory')
+    parser.add_argument(
+        "-rwd",
+        "--root_working_dir",
+        type=str,
+        help="The path to use as root working directory",
+    )
 
     args = parser.parse_args()
 

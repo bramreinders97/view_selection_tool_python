@@ -1,0 +1,8 @@
+[flake8]
+select = DAR,BLK,C,D,E,I,F,W,ANN
+docstring-convention = google
+ignore = E203,W503,I201,I100,I001,I005,I101
+max-line-length = 88
+exclude = src/view_selection_python/CLI.py
+per-file-ignores =
+    src/view_selection_python/Exceptions/errors.py:E501
