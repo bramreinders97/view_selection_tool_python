@@ -1,3 +1,5 @@
+"""File that'll deal with communication through the CLI."""
+
 import click
 
 from . import __version__
