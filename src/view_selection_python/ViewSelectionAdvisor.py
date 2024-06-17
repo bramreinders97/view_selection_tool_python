@@ -19,8 +19,9 @@ class ViewSelectionAdvisor:
     the one with the lowest expected cost.
     """
 
-    def __init__(self):
+    def __init__(self, n_mater_in_config: int = 2):
         """Initialize, do checks to the environment, and create necessary objects."""
+        self.n_mater_in_config = n_mater_in_config
         self.cwd_checker = CwdChecker()
         self.postgres_handler = None
         self.model_info_manager = None
@@ -84,7 +85,8 @@ class ViewSelectionAdvisor:
     def _get_configs_to_check(self) -> Deque[None | Tuple[str]]:
         """Create a deque of configurations to check the cost for."""
         config_list_generator = MaterializationConfigurationGenerator(
-            all_intermediate_models=self.model_info_manager.get_all_intermediate_models()  # noqa E501
+            all_intermediate_models=self.model_info_manager.get_all_intermediate_models(),  # noqa E501
+            max_materializations=self.n_mater_in_config
         )
         return config_list_generator.get_all_possible_configurations()
 

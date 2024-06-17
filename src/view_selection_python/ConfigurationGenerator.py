@@ -12,7 +12,7 @@ class MaterializationConfigurationGenerator:
     """
 
     def __init__(
-        self, all_intermediate_models: List[str], max_materializations: int = 2
+        self, all_intermediate_models: List[str], max_materializations: int
     ):
         """Initialize the class."""
         self.all_intermediate_models = all_intermediate_models
