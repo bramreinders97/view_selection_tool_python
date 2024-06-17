@@ -102,21 +102,21 @@ class PostgresHandler:
         return result
 
     def get_all_models_and_code(self) -> List[Tuple[str]]:
-        """Return all models in the DA, together with their code."""
-        return self._get_table_content("fct_all_models_plus_code")
+        """Return all models in the DAG, together with their code."""
+        return self._get_table_content("all_models_plus_code")
 
     def get_destination_nodes(self) -> List[Tuple[str]]:
         """Return the destination nodes of the DAG."""
-        return self._get_table_content("fct_destination_nodes")
+        return self._get_table_content("destination_nodes")
 
     def get_model_dependencies(self) -> List[Tuple[str]]:
         """Return the dependencies in the DAG."""
-        return self._get_table_content("fct_model_dependencies")
+        return self._get_table_content("model_dependencies")
 
     def get_maintenance_fractions(self) -> List[Tuple[str]]:
         """Return maintenance fraction for each model."""
         return self._get_table_content(
-            "fct_avg_maintenance_fractions", cols="model_id, avg_maintenance_fraction"
+            "avg_maintenance_fractions", cols="model_id, avg_maintenance_fraction"
         )
 
     def get_storage_space_left(self) -> int:

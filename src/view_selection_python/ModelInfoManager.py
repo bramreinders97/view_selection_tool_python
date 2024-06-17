@@ -37,7 +37,6 @@ class ModelInfoManager:
     def __init__(self, postgres_handler: PostgresHandler):
         """Initialize the class, fill the dict with all relevant info."""
         self.postgres_handler = postgres_handler
-
         self.model_info_dict = {}
         self._fill_dict()
 

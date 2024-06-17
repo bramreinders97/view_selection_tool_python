@@ -9,4 +9,3 @@ from . import __version__
 @click.version_option(version=__version__)
 def main():
     """The hypermodern Python project."""
-    print("TESTING")

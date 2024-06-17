@@ -3,3 +3,4 @@
 .idea/
 __pycache__/
 src/view_selection_python/__pycache__/
+.mypy_cache/

@@ -15,8 +15,8 @@ from Exceptions.warnings import PROFILE_PATH_NOT_SET_WARNING
 class CwdChecker:
     """CwdChecker class.
 
-    Is class checks if the user calls the tool from a correct working directory.
-    These check are necessary to ensure that the rest of the tool functions properly.
+    This class checks if the user calls the tool from a correct working directory.
+    These checks are necessary to ensure that the rest of the tool functions properly.
     """
 
     def __init__(self):

@@ -25,7 +25,6 @@ class ViewSelectionAdvisor:
         self.postgres_handler = None
         self.model_info_manager = None
         self.config_cost_estimator = None
-
         self._do_environment_checks()
         self._create_necessary_objects()
 
@@ -89,7 +88,7 @@ class ViewSelectionAdvisor:
         )
         return config_list_generator.get_all_possible_configurations()
 
-    def advise(self):
+    def advise(self) -> str | None:
         """Find and return the best configuration.
 
         This is done by looping over all possible configuration and keeping track of
@@ -105,9 +104,13 @@ class ViewSelectionAdvisor:
         storage_bound = self.postgres_handler.get_storage_space_left()
 
         for config in configs_to_check:
+            # print('config: ', config)
             total_config_cost, total_storage_cost = (
                 self.config_cost_estimator.estimate_cost_of_configuration(config)
             )
+            # print('total config cost: ', total_config_cost)
+            # print('total storage cost: ', total_storage_cost)
+            # print()
             if total_config_cost < minimal_cost and total_storage_cost < storage_bound:
                 minimal_cost = total_config_cost
                 best_config = config
