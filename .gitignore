@@ -4,3 +4,10 @@
 __pycache__/
 src/view_selection_python/__pycache__/
 .mypy_cache/
+
+# For user perspective:
+.flake8
+.gitlab-ci.yml
+noxfile.py
+poetry.lock
+pyproject.toml
