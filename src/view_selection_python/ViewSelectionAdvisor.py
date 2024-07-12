@@ -10,6 +10,7 @@ from ModelInfoManager import ModelInfoManager
 from PostgresHandler import PostgresHandler
 from ruamel.yaml.comments import CommentedMap
 from YamlScraper import YamlScraper
+from tqdm import tqdm
 
 
 class ViewSelectionAdvisor:
@@ -105,14 +106,12 @@ class ViewSelectionAdvisor:
 
         storage_bound = self.postgres_handler.get_storage_space_left()
 
-        for config in configs_to_check:
-            # print('config: ', config)
+        for config in tqdm(configs_to_check):
+
             total_config_cost, total_storage_cost = (
                 self.config_cost_estimator.estimate_cost_of_configuration(config)
             )
-            # print('total config cost: ', total_config_cost)
-            # print('total storage cost: ', total_storage_cost)
-            # print()
+
             if total_config_cost < minimal_cost and total_storage_cost < storage_bound:
                 minimal_cost = total_config_cost
                 best_config = config
