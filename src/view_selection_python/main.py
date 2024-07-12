@@ -1,6 +1,8 @@
 """Call ViewSelectionAdvisor.advise()."""
 
 from ViewSelectionAdvisor import ViewSelectionAdvisor
+from MAX_MODELS_TO_MATERIALIZE import MAX_MODELS_TO_MATERIALIZE
+
 
 if __name__ == "__main__":
 
@@ -9,7 +11,7 @@ if __name__ == "__main__":
     print("This tool helps dbt users make informed decisions about view materialization.")
 
     view_selection_advisor = ViewSelectionAdvisor(
-        n_mater_in_config=2
+        n_mater_in_config=MAX_MODELS_TO_MATERIALIZE
     )
 
     print()
