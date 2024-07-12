@@ -15,11 +15,12 @@ steps:
 `ViewSelectionAdvisor`. The dbt part has to be run **before** the python part.
 
 
-2. In a location which is convenient for you, either clone this repo by calling
+2. Clone or Download the Python Package:  
+In a convenient location, either clone this repo by running:  
    ```git clone https://github.com/bramreinders97/view_selection_tool_python.git```,    
 or download the `src` folder from this repository. Ensure you know the absolute filepath
-of the chosen location, you'll need it at the first step of the usage instructions.  
-
+of the chosen location, you'll need it in the first step of the usage instructions.
+ 
 
 3. Ensure the following packages are installed in the `venv` that is used:
    ```toml
