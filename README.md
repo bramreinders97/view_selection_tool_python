@@ -10,3 +10,8 @@ This is done by the Orchestrator class `ViewSelectionAdvisor` in a bunch of step
     1. loop over the possible configurations, and for each configuration estimate the total cost
     2. keep track of the smallest cost observed, while checking of this solution will fit in the db
     3. return the configuration with the lowest cost associated to it
+
+
+
+## New part for docs
+Welcome to the draft page of the repository of `ViewSelectionAdvisor`. If you've gotten this far, 

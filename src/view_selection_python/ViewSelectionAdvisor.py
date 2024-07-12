@@ -10,6 +10,7 @@ from ModelInfoManager import ModelInfoManager
 from PostgresHandler import PostgresHandler
 from ruamel.yaml.comments import CommentedMap
 from YamlScraper import YamlScraper
+from tqdm import tqdm
 
 
 class ViewSelectionAdvisor:
@@ -104,6 +105,8 @@ class ViewSelectionAdvisor:
         best_config = None
 
         storage_bound = self.postgres_handler.get_storage_space_left()
+
+        print("Analyzing your DAG...")
 
         for config in configs_to_check:
             # print('config: ', config)
