@@ -106,8 +106,6 @@ class ViewSelectionAdvisor:
 
         storage_bound = self.postgres_handler.get_storage_space_left()
 
-        print("Analyzing your DAG...")
-
         for config in configs_to_check:
             # print('config: ', config)
             total_config_cost, total_storage_cost = (
