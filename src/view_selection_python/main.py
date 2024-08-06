@@ -1,7 +1,7 @@
 """Call ViewSelectionAdvisor.advise()."""
 
 from .ViewSelectionAdvisor import ViewSelectionAdvisor
-from .MAX_MODELS_TO_MATERIALIZE import MAX_MODELS_TO_MATERIALIZE
+from .CLI import CLI
 
 
 def run():
@@ -9,8 +9,10 @@ def run():
     print("Welcome to ViewSelectionAdvisor!")
     print("This tool helps dbt users make informed decisions about view materialization.")
 
+    cli = CLI()
+
     view_selection_advisor = ViewSelectionAdvisor(
-        n_mater_in_config=MAX_MODELS_TO_MATERIALIZE
+        n_mater_in_config=cli.get_max_materializations()
     )
 
     print()

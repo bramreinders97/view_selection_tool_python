@@ -1,7 +1,7 @@
 # pyproject.toml
 [tool.poetry]
 name = "view-selection-python"
-version = "0.1.1"
+version = "0.1.3"
 description = "View Selection Tool for dbt (python part)"
 license = "MIT"
 readme = "README.md"

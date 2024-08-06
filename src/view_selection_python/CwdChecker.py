@@ -3,7 +3,7 @@
 import os
 from typing import List
 
-from .CLI import get_wd
+from .CLI import CLI
 from .Exceptions.errors import (
     ERROR_DBT_PROJECT_NOT_FOUND,
     ERROR_PROFILES_NOT_FOUND,
@@ -25,7 +25,8 @@ class CwdChecker:
         If we're done with developing and ready to deploy as PyPi package,
         the working dir can probably be obtained using os.getcwd()
         """
-        self.cwd = get_wd()
+        cli = CLI()
+        self.cwd = cli.get_wd()
         self.profile_path = None
 
     def _check_exists_and_return_path(
