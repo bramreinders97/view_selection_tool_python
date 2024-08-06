@@ -4,7 +4,7 @@ from typing import Dict, Tuple
 
 fudge_factors_lists = [
     [0.01, 0.25, 0.50, 0.70, 0.80, 0.90],
-    [0.25, 0.60, 0.60, 0.80, 0.90, 0.95],
+    [0.25, 0.50, 0.60, 0.80, 0.90, 0.95],
 ]
 
 
@@ -14,7 +14,7 @@ def _get_fudge_list_index_to_use(n_outgoing_edges: int) -> int:
     The correct list is obtained from `fudge_factors_lists`
 
     If a materialized node has one outgoing edge, we use
-        [0.25, 0.60, 0.60, 0.80, 0.90, 0.95]
+        [0.25, 0.50, 0.60, 0.80, 0.90, 0.95]
     if a materialized node has more than 1 outgoing edges, we use
         [0.01, 0.25, 0.50, 0.70, 0.80, 0.90]
     """

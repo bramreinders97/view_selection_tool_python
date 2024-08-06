@@ -56,19 +56,6 @@ class ConfigCostEstimator:
         fudge_factor = self._get_fudge_factor(model)
         return storage_cost + (creation_cost * fudge_factor)
 
-    def _get_mf(self, model: str) -> float | int:
-        """Return the maintenance fraction of a model."""
-        return self.models_info_dict[model]["maintenance_fraction"]
-
-    def _calc_maintenance_cost(self, model: str) -> float:
-        """Return the maintenance cost of a node.
-
-        The maintenance cost is calculated using the formula:
-            maintenance_cost = mf * execution_cost
-        """
-        mf = self._get_mf(model)
-        execution_cost = self._calc_execution_cost(model)
-        return mf * execution_cost
 
     def _calc_total_cost(self, model: str) -> float:
         """Return the total cost of a node.
@@ -77,8 +64,7 @@ class ConfigCostEstimator:
             total_cost = execution_cost + maintenance_cost
         """
         execution_cost = self._calc_execution_cost(model)
-        maintenance_cost = self._calc_maintenance_cost(model)
-        return execution_cost + maintenance_cost
+        return execution_cost
 
     def _get_costs_single_node(self, model: str) -> Tuple[float, float]:
         """Return the total cost and storage cost of a single node."""
