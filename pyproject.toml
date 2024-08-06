@@ -1,0 +1,25 @@
+# pyproject.toml
+[tool.poetry]
+name = "view-selection-python"
+version = "0.1.1"
+description = "View Selection Tool for dbt (python part)"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/bramreinders97/view_selection_tool_python"
+repository = "https://github.com/bramreinders97/view_selection_tool_python"
+keywords = ["view", "selection"]
+authors = ["Bram Reinders <bram.reinders@blenddata.nl>"]
+
+[tool.poetry.dependencies]
+python = "^3.11.5"
+click = "^8.1.7"
+ruamel-yaml = "^0.18.6"
+psycopg2 = "^2.9.9"
+tqdm = "^4.66.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry.scripts]
+vst-advise = "view_selection_python.main:run"

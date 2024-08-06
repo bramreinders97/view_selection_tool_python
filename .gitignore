@@ -10,4 +10,4 @@ src/view_selection_python/__pycache__/
 .gitlab-ci.yml
 noxfile.py
 poetry.lock
-pyproject.toml
+READ-WHEN-PUBLISHING.md
