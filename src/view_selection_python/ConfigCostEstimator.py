@@ -2,7 +2,7 @@
 
 from typing import Dict, List, Tuple
 
-from FudgeFactorCalculator import FudgeFactorCalculator
+from .FudgeFactorCalculator import FudgeFactorCalculator
 
 
 class ConfigCostEstimator:

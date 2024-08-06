@@ -1,7 +1,7 @@
 """YamlScraper class."""
 
 import ruamel.yaml
-from Exceptions.errors import (
+from .Exceptions.errors import (
     MISSING_CRED_ERROR,
     NO_DEFAULT_ERROR,
     NO_OUTPUTS_ERROR,

@@ -3,13 +3,13 @@
 import os
 from typing import List
 
-from CLI import get_wd
-from Exceptions.errors import (
+from .CLI import get_wd
+from .Exceptions.errors import (
     ERROR_DBT_PROJECT_NOT_FOUND,
     ERROR_PROFILES_NOT_FOUND,
     ERROR_VST_NOT_INSTALLED,
 )
-from Exceptions.warnings import PROFILE_PATH_NOT_SET_WARNING
+from .Exceptions.warnings import PROFILE_PATH_NOT_SET_WARNING
 
 
 class CwdChecker:

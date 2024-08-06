@@ -3,7 +3,7 @@
 from typing import Dict, List, Tuple
 
 import psycopg2
-from Exceptions.errors import NOT_ALL_TABLES_IN_VST_SCHEMA_ERROR
+from .Exceptions.errors import NOT_ALL_TABLES_IN_VST_SCHEMA_ERROR
 from psycopg2.extensions import connection, cursor
 from ruamel.yaml.comments import CommentedMap
 

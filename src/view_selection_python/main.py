@@ -1,11 +1,10 @@
 """Call ViewSelectionAdvisor.advise()."""
 
-from ViewSelectionAdvisor import ViewSelectionAdvisor
-from MAX_MODELS_TO_MATERIALIZE import MAX_MODELS_TO_MATERIALIZE
+from .ViewSelectionAdvisor import ViewSelectionAdvisor
+from .MAX_MODELS_TO_MATERIALIZE import MAX_MODELS_TO_MATERIALIZE
 
 
-if __name__ == "__main__":
-
+def run():
     print()
     print("Welcome to ViewSelectionAdvisor!")
     print("This tool helps dbt users make informed decisions about view materialization.")

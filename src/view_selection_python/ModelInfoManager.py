@@ -3,9 +3,9 @@
 from ast import literal_eval
 from typing import Dict, KeysView, List, Tuple
 
-from CostEstimatorSinglePlan import CostEstimatorSinglePlan
-from PostgresHandler import PostgresHandler
-from SQLRewriter import SQLRewriter
+from .CostEstimatorSinglePlan import CostEstimatorSinglePlan
+from .PostgresHandler import PostgresHandler
+from .SQLRewriter import SQLRewriter
 
 
 def _fill_depends_on(downstream_model_info: Dict, dependencies: List[str]):

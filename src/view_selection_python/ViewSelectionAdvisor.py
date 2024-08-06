@@ -3,13 +3,13 @@
 from math import inf
 from typing import Deque, Tuple
 
-from ConfigCostEstimator import ConfigCostEstimator
-from ConfigurationGenerator import MaterializationConfigurationGenerator
-from CwdChecker import CwdChecker
-from ModelInfoManager import ModelInfoManager
-from PostgresHandler import PostgresHandler
+from .ConfigCostEstimator import ConfigCostEstimator
+from .ConfigurationGenerator import MaterializationConfigurationGenerator
+from .CwdChecker import CwdChecker
+from .ModelInfoManager import ModelInfoManager
+from .PostgresHandler import PostgresHandler
 from ruamel.yaml.comments import CommentedMap
-from YamlScraper import YamlScraper
+from .YamlScraper import YamlScraper
 from tqdm import tqdm
 
 
