@@ -42,6 +42,20 @@ def _get_args() -> argparse.Namespace:
              "increase runtime. Default is 2."
     )
 
+    parser.add_argument(
+        "-p",
+        "--profile",
+        type=str,
+        help="Select the profile to use"
+    )
+
+    parser.add_argument(
+        "-t",
+        "--target",
+        type=str,
+        help="Select the target profile to use"
+    )
+
     return parser.parse_args()
 
 
@@ -90,3 +104,23 @@ class CLI:
             The default value is 2 if no argument is provided.
         """
         return self.args.max_materializations
+
+    def get_profile(self) -> str | None:
+        """
+        Retrieve the profile specified in the CLI arguments.
+
+        Returns:
+            str | None: The profile to use as specified in the command-line arguments.
+            Returns None if no profile is specified.
+        """
+        return self.args.profile
+
+    def get_target(self) -> str | None:
+        """
+        Retrieve the target profile specified in the CLI arguments.
+
+        Returns:
+            str | None: The target profile to use as specified in the command-line arguments.
+            Returns None if no target profile is specified.
+        """
+        return self.args.target

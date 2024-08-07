@@ -9,7 +9,6 @@ from .Exceptions.errors import (
     ERROR_PROFILES_NOT_FOUND,
     ERROR_VST_NOT_INSTALLED,
 )
-from .Exceptions.warnings import PROFILE_PATH_NOT_SET_WARNING
 
 
 class CwdChecker:
@@ -28,6 +27,8 @@ class CwdChecker:
         cli = CLI()
         self.cwd = cli.get_wd()
         self.profile_path = None
+        self.dbt_project_path = None
+        self._do_all_checks()
 
     def _check_exists_and_return_path(
         self, file_names: List[str], error_message: str
@@ -49,8 +50,8 @@ class CwdChecker:
         raise RuntimeError(error_message)
 
     def _is_dbt_project(self):
-        """dbt_project.y(a)ml should be there."""
-        _ = self._check_exists_and_return_path(
+        """dbt_project.y(a)ml should be there. If found, store path"""
+        self.dbt_project_path = self._check_exists_and_return_path(
             file_names=["dbt_project.yml", "dbt_project.yaml"],
             error_message=ERROR_DBT_PROJECT_NOT_FOUND,
         )
@@ -69,7 +70,7 @@ class CwdChecker:
             error_message=ERROR_PROFILES_NOT_FOUND,
         )
 
-    def do_all_checks(self):
+    def _do_all_checks(self):
         """If we get to the end of this function, all checks have passed."""
         self._is_dbt_project()
         self._is_vst_installed()
@@ -77,7 +78,8 @@ class CwdChecker:
 
     def get_profiles_path(self) -> str:
         """Return the path where we can find profiles.y(a)ml."""
-        if self.profile_path:
-            return self.profile_path
-        else:
-            raise Warning(PROFILE_PATH_NOT_SET_WARNING)
+        return self.profile_path
+
+    def get_dbt_project_path(self) -> str:
+        """Return the path where we can find dbt_project.y(a)ml"""
+        return self.dbt_project_path

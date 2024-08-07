@@ -25,6 +25,16 @@ MISSING_CRED_ERROR = (
     "specified as shown in the documentation, see LINK TO DOCS."
 )
 
+NO_SCHEMA_ERROR = (
+    """\
+    Missing Schema Appendix for REPLACE_WITH_PROFILE.    
+    No schema appendix is specified for the `REPLACE_WITH_PROFILE` profile. Please ensure that you have included this configuration in your `dbt_project.yml` file under the following structure:    
+    models:
+      REPLACE_WITH_PROFILE:
+        +schema: ...
+    """
+)
+
 """Errors for CwdChecker."""
 
 ERROR_DBT_PROJECT_NOT_FOUND = (

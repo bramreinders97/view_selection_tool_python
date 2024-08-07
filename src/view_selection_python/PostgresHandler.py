@@ -24,7 +24,7 @@ class PostgresHandler:
         self.db_port = db_creds["port"]
         self.db_name = db_creds["dbname"]
         self.db_user = db_creds["user"]
-        self.db_password = db_creds["password"]
+        self.db_password = db_creds.get(["password"], db_creds['pass'])
         self.db_schema = db_creds["schema"]
         self.conn: None | connection = None
         self.cursor: None | cursor = None

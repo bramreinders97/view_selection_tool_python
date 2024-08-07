@@ -9,8 +9,10 @@ from .CwdChecker import CwdChecker
 from .ModelInfoManager import ModelInfoManager
 from .PostgresHandler import PostgresHandler
 from ruamel.yaml.comments import CommentedMap
-from .YamlScraper import YamlScraper
+from .ProfilesScraper import ProfilesScraper
+from .DbtProjectScraper import DbtProjectScraper
 from tqdm import tqdm
+from .CLI import CLI
 
 
 class ViewSelectionAdvisor:
@@ -24,29 +26,47 @@ class ViewSelectionAdvisor:
         """Initialize, do checks to the environment, and create necessary objects."""
         self.n_mater_in_config = n_mater_in_config
         self.cwd_checker = CwdChecker()
+        self.dbt_project_scraper = None
+        self.profiles_scraper = None
         self.postgres_handler = None
         self.model_info_manager = None
         self.config_cost_estimator = None
-        self._do_environment_checks()
         self._create_necessary_objects()
 
     def _create_necessary_objects(self):
         """Create objects necessary for providing the view selection advise."""
+        self._create_dbt_project_scraper()
+        self._create_profiles_scraper()
         self._create_postgres_handler()
         self._create_model_info_manager()
         self._create_config_cost_estimator()
 
-    def _do_environment_checks(self):
-        """Do necessary of tthe working environment.
+    def _create_dbt_project_scraper(self):
+        """Create an instance of DbtProjectScraper which will read contents of dbt_project.yml."""
+        dbt_project_path = self.cwd_checker.get_dbt_project_path()
+        self.dbt_project_scraper = DbtProjectScraper(filepath=dbt_project_path)
 
-        These checks are necessary to verify if the user is calling our tool
-        from a correct working directory
-        """
-        self.cwd_checker.do_all_checks()
+    def _get_profile_name(self) -> str:
+        """Return the profile which contains the relevant db credentials."""
+        # If the user manually specified a profile through cli, use that one
+        cli = CLI()
+        cli_profile = cli.get_profile()
 
-    def _obtain_profiles_path(self) -> str:
-        """Return the path of the profiles.yml file of the user's project."""
-        return self.cwd_checker.get_profiles_path()
+        if cli_profile:
+            return cli_profile
+
+        # If no specified profile in cli, use the profile specified in dbt_project.yml
+        else:
+            return self.dbt_project_scraper.get_profile()
+
+    def _create_profiles_scraper(self):
+        """Create an instance of ProfilesScraper which will read contents of profiles.yml."""
+        profiles_yml_path = self.cwd_checker.get_profiles_path()
+        profile_name = self._get_profile_name()
+        self.profiles_scraper = ProfilesScraper(
+            filepath=profiles_yml_path,
+            profile_name=profile_name
+        )
 
     def _obtain_db_credentials(self) -> CommentedMap:
         """Return the db credentials of the DB schema.
@@ -54,10 +74,11 @@ class ViewSelectionAdvisor:
         This is the schema where the relevant tables from the dbt
         part of the ViewSelectionTool are stored
         """
-        profiles_yml_path = self._obtain_profiles_path()
-        yml_scraper = YamlScraper(profiles_yml_path)
-        db_creds = yml_scraper.extract_db_creds()
-        return db_creds
+        return self.profiles_scraper.get_db_creds(
+            schema_appendix=self.dbt_project_scraper.get_schema_appendix(
+                profile='view_selection_tool'
+            )
+        )
 
     def _create_postgres_handler(self):
         """Create an instance of PostgresHandler which will communicate with the DB."""
