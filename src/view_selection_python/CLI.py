@@ -8,31 +8,23 @@ import os
 
 def _get_args() -> argparse.Namespace:
     """
-    Parses command-line arguments for the View Selection Tool.
+    This function is responsible for parsing the command-line arguments provided by the user when running the View Selection Tool.
+    It uses the argparse module to define and parse these arguments.
 
-    The function uses argparse to define and parse the command-line arguments that
-    determine the behavior of the tool. It provides options for specifying the root
-    working directory and setting the maximum number of models to materialize.
+    The function defines three command-line arguments:
+    1. max_materializations: This argument is used to specify the maximum number of models to materialize. It is an integer and its default value is 2.
+    2. profile: This argument is used to select the profile to use. It is a string.
+    3. target: This argument is used to select the target profile to use. It is a string.
 
     Returns:
         argparse.Namespace: An object containing the parsed command-line arguments.
-        It includes the following attributes:
-            - root_working_dir (str): The path to use as the root working directory.
-            - max_materializations (int): The maximum number of models to materialize,
-              with a default value of 2.
     """
     parser = argparse.ArgumentParser(
         prog="View Selection Tool",
         description="Advice on which models to materialize in dbt",
     )
 
-    parser.add_argument(
-        "-rwd",
-        "--root_working_dir",
-        type=str,
-        help="The path to use as root working directory",
-    )
-
+    # Define the max_materializations argument
     parser.add_argument(
         "-mm",
         "--max_materializations",
@@ -42,6 +34,7 @@ def _get_args() -> argparse.Namespace:
              "increase runtime. Default is 2."
     )
 
+    # Define the profile argument
     parser.add_argument(
         "-p",
         "--profile",
@@ -49,6 +42,7 @@ def _get_args() -> argparse.Namespace:
         help="Select the profile to use"
     )
 
+    # Define the target argument
     parser.add_argument(
         "-t",
         "--target",
@@ -56,6 +50,7 @@ def _get_args() -> argparse.Namespace:
         help="Select the target profile to use"
     )
 
+    # Parse the command-line arguments and return the result
     return parser.parse_args()
 
 
@@ -76,24 +71,6 @@ class CLI:
         for later use in the instance methods.
         """
         self.args = _get_args()
-
-    def get_wd(self) -> str:
-        """
-        Retrieve the working directory specified in the CLI arguments.
-
-        If no working directory is specified in the command-line arguments, the method
-        returns the current working directory.
-
-        Returns:
-            str: The normalized path to the root working directory or the current working
-            directory if no argument is provided.
-        """
-        root_wd = self.args.root_working_dir
-
-        if root_wd:
-            return os.path.normpath(root_wd)
-        else:
-            return os.getcwd()
 
     def get_max_materializations(self) -> int:
         """

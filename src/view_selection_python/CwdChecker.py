@@ -24,8 +24,7 @@ class CwdChecker:
         If we're done with developing and ready to deploy as PyPi package,
         the working dir can probably be obtained using os.getcwd()
         """
-        cli = CLI()
-        self.cwd = cli.get_wd()
+        self.cwd = os.getcwd()
         self.profile_path = None
         self.dbt_project_path = None
         self._do_all_checks()
