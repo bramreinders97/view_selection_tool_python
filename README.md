@@ -1,42 +1,129 @@
-## ViewSelectionAdvisor
-Welcome to `ViewSelectionAdvisor`, a tool designed to inform dbt users about the problem of
-model materialization. This tool consists of two separate packages working together, each with their
-own GitHub repository:
-* [A dbt package](https://github.com/bramreinders97/view_selection_tool_dbt)
+# ViewSelectionAdvisor
+
+Welcome to `ViewSelectionAdvisor`, a tool designed to help dbt users address the problem of model materialization. 
+This tool consists of two separate packages, each hosted in its own GitHub repository:
+* [A dbt package](https://github.com/bramreinders97/view_selection_tool_dbt). 
+This package is dependent on another dbt package: [Elementary](https://docs.elementary-data.com/guides/modules-overview/dbt-package)
 * [A python package](https://github.com/bramreinders97/view_selection_tool_python)
 
+### What does it do?
+Most dbt projects are structured with a DAG that includes staging, intermediate, and marts models. Typically, staging and intermediate models are stored as views, while marts models are stored as tables. However, this default configuration may not always be the most efficient from a performance perspective. Determining which models should be materialized and which should not can be challenging.
+This is where `ViewSelectionAdvisor` comes in to help. By using this tool, you are advised on the best 
+materialization strategy for you models in dbt. 
+
+
+### How does it work?
+`ViewSelectionAdvisor` determines the optimal configuration of materialized models by evaluating all possible configurations. For each configuration, it estimates the total cost of building your entire DAG using PostgreSQL's `EXPLAIN` command.
+
+Note: `ViewSelectionAdvisor` assumes that all [destination nodes](## "Destination nodes are nodes in your DAG without an outgoing edge. In most cases, these nodes correspond to mart tables.") are already materialized as tables. Consequently, these nodes will not appear in the provided advice.
+
+Note 2: By default, `ViewSelectionAdvisor` only looks at materialization configurations of at most 2 models. 
+This can be changed using the `max_materializations` variable (see [overview of variables](#possible-variables-for-vst-advise)).
+
+
+### A note on Elementary's defaults materializations warning
+Please note that when running any of the `dbt run` commands in the coming steps, it is possible that you observe
+a warning from dbt on elementary trying to override default materializations. 
+This is not a problem, as [the developers of Elementary are aware of this and working on a solution](https://docs.elementary-data.com/oss/quickstart/quickstart-cli-package#important-allowing-elementary-to-override-dbts-default-materializations-relevant-from-dbt-1-8).
+Furthermore, the parts of the elementary package that are affected by this are not relevant for `ViewSelectionAdvisor`.
 
 ## Installation Instructions
-We assume you have a working dbt project for which you want advice. If so, follow the following
-steps:
 
-1. Clone or Download the Python Package:  
-In a convenient location, either clone this repo by running:  
-   ```git clone https://github.com/bramreinders97/view_selection_tool_python.git```,    
-or download the `src` folder from this repository. Ensure you know the absolute filepath
-of the chosen location, you'll need it in the first step of the usage instructions.
+### dbt part
+1. Include `ViewSelectionAdvisor` in your `packages.yml` file:
+    ```yaml
+      - git: "https://github.com/bramreinders97/view_selection_tool_dbt.git"
+        revision: 4b7990736f651ae08f8d4a7a260f2c10ad1d862b
+    ``` 
  
+2. Update your `dbt_project.yml` file:
 
-2. Ensure the following packages are installed in the `venv` that is used:
-   ```toml
-   ruamel-yaml = "^0.18.6"
-   psycopg2 = "^2.9.9"
+    - **Schema Configuration**:
+      Specify the schema appendix where dbt should store the relevant tables:
+      ```yaml
+        models:
+          elementary:
+            +schema: elementary
+          view_selection_tool:
+            +schema: view_selection_tool
+      ```
+      These settings ensure that if your project's tables are stored in schema `x`, then the tables from `elementary` will be stored in `x_elementary`, and those from `ViewSelectionAdvisor` will be stored in `x_view_selection_tool`.
+
+    - **Variable Configuration**:
+      Set the following variables:
+      ```yaml
+        vars:
+          view_selection_tool:
+            # Database where the elementary tables are located
+            # (same as in your target profile from profiles.yml)
+            elementary_src_db:  
+
+            # Schema where the elementary tables are stored (e.g., `x_elementary`)
+            src_schema:  
+
+            # Name of your project as specified in this dbt_project.yml
+            relevant_package:  
+      ```
+      This information allows `ViewSelectionAdvisor` to identify the data sources (`elementary_src_db` and `src_schema`) and the models to focus on (`relevant_package`).
+
+
+3. Import the packages and build Elementary models
+   ```shell
+   dbt deps
+   dbt run --select elementary
+   ```
+   This will install both the `view_selection_tool` and `elementary` packages, and create empty tables for Elementary to fill (at schema `x_elementary`).
+
+
+
+### Python part
+
+4. Install the package using your preferred method:
+   ```shell
+   pip install view-selection-python
+   ```
+   or
+   ```shell
+   poetry add view-selection-python
    ```
 
+
 ## Usage Instructions
+Because `ViewSelectionAdvisor` relies entirely on the tables created by Elementary, it is crucial to ensure these tables are populated with the necessary information before running `ViewSelectionAdvisor`. Whenever you want to receive advice on the materialization of a DAG in dbt, follow these steps:
 
-1. In not done already, follow the installation and usage instructions of 
-[the dbt part](https://github.com/bramreinders97/view_selection_tool_dbt) of 
-`ViewSelectionAdvisor`. The dbt part has to be run **before** the python part.
+1. Populate Elementary tables with the latest information:
+   ```shell
+   dbt run --select <your_project_name>
+   ```
+   Running your project populates the Elementary tables with the data required by ViewSelectionAdvisor.
+
+   _Note: This command only runs the models in your project, not the individual models from Elementary. However, the on-run-end hook of Elementary will execute automatically and provide all the necessary data._
 
 
-2. Choose max number models to materialize:  
-Right now, `ViewSelectionAdvisor` by default only looks at a maximum of 2 models to materialize. This 
-can be changed manually in the `MAX_MODELS_TO_MATERIALIZE.py` file by changing the corresponding variable
-there. 
+2. Run `ViewSelectionAdvisor`:
+   
+   - **Transform Info From Elementary**:
+   ```shell
+   dbt run --select view_selection_tool
+   ```
+   This transforms the information provided in the Elementary tables and
+   fills the database schema `x_view_selection_tool` with all information the
+   python part of the `ViewSelectionAdvisor` requires in order to give a proper advice.
 
+   - **Transform Info From Elementary**:
+   ```shell
+   vst-advise
+   ```
+   This command compares all possible materialization configurations, and advises on the configuration with 
+   the lowest estimated cost. 
 
-2. Obtain the advice on which models to materialize:
-From inside the root directory of your dbt project (from the same location as where you would call
-`dbt run`), call `main.py`:  
-   ```python path/to/src/main.py```   
+### Possible Variables for `vst-advise`
+The following variables can be used to change the behavior of `vst-advise`: 
+
+| Option                                                                        | Description                                                                                                                                  |
+|-------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `-h`, `--help`                                                                | Show this help message and exit                                                                                                              |
+| `-mm <MAX_MATERIALIZATIONS>`, `--max_materializations <MAX_MATERIALIZATIONS>` | Set the maximum number of models to consider for materialization. Higher values provide more options but may increase runtime. Default is 2. |
+| `-p <PROFILE>`, `--profile <PROFILE>`                                         | Select the profile to use                                                                                                                    |
+| `-t <TARGET>`, `--target <TARGET>`                                            | Select the target profile to use                                                                                                             |
+
