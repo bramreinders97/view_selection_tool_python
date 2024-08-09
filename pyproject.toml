@@ -1,7 +1,7 @@
 # pyproject.toml
 [tool.poetry]
 name = "view-selection-python"
-version = "0.1.5"
+version = "0.1.6"
 description = "View Selection Tool for dbt (python part)"
 license = "MIT"
 readme = "README.md"
@@ -16,6 +16,7 @@ click = "^8.1.7"
 ruamel-yaml = "^0.18.6"
 psycopg2 = "^2.9.9"
 tqdm = "^4.66.4"
+tabulate = "^0.9.0"
 
 [build-system]
 requires = ["poetry-core"]

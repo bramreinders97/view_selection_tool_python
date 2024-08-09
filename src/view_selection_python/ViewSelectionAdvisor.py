@@ -1,8 +1,9 @@
 """ViewSelectionAdvisor class."""
 
 from math import inf
-from typing import Deque, Tuple
+from typing import Deque, Tuple, List
 
+from collections import deque
 from .ConfigCostEstimator import ConfigCostEstimator
 from .ConfigurationGenerator import MaterializationConfigurationGenerator
 from .CwdChecker import CwdChecker
@@ -112,20 +113,23 @@ class ViewSelectionAdvisor:
         )
         return config_list_generator.get_all_possible_configurations()
 
-    def advise(self) -> str | None:
-        """Find and return the best configuration.
+    def advise(self) -> Deque:
+        """
+        Analyzes possible configurations and returns those that fit within the storage bounds.
 
-        This is done by looping over all possible configuration and keeping track of
-        which configuration result in the lowest cost.
+        This method iterates over all potential configurations, estimates their total cost
+        and storage requirements, and stores those configurations that fit within the available
+        storage space.
 
-        When checking a configuration, also make sure it fits within the storage bound
+        Returns:
+            Deque: A deque of dictionaries, each containing a valid configuration and its
+            associated total configuration cost.
         """
         configs_to_check = self._get_configs_to_check()
 
-        minimal_cost = inf
-        best_config = None
-
         storage_bound = self.postgres_handler.get_storage_space_left()
+
+        results = deque()
 
         for config in tqdm(configs_to_check):
 
@@ -133,8 +137,13 @@ class ViewSelectionAdvisor:
                 self.config_cost_estimator.estimate_cost_of_configuration(config)
             )
 
-            if total_config_cost < minimal_cost and total_storage_cost < storage_bound:
-                minimal_cost = total_config_cost
-                best_config = config
+            # If won't fit don't use
+            if total_storage_cost < storage_bound:
 
-        return best_config
+                # Store in results
+                results.append({
+                    'config': config,
+                    'total_config_cost': total_config_cost
+                })
+
+        return results

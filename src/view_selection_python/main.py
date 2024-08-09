@@ -2,6 +2,7 @@
 
 from .ViewSelectionAdvisor import ViewSelectionAdvisor
 from .CLI import CLI
+from .OutputPrinter import OutputPrinter
 
 
 def run():
@@ -19,9 +20,15 @@ def run():
     print("Analyzing your DAG to provide the best advice...")
     print()
 
-    best_config = view_selection_advisor.advise()
+    results = view_selection_advisor.advise()
 
     print()
-    print("Our advice is to materialize the following models: ")
-    print(best_config)
+    print("Our analysis yielded the following results: ")
+    print()
+
+    output_printer = OutputPrinter(
+        results=results
+    )
+    output_printer.print_output()
+
     print()
