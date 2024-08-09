@@ -50,6 +50,15 @@ def _get_args() -> argparse.Namespace:
         help="Select the target profile to use"
     )
 
+    # Define top-x argument
+    parser.add_argument(
+        "-x",
+        "--top_x",
+        type=int,
+        default=10,
+        help="Select the top x configurations to print in the terminal. Default is 10."
+    )
+
     # Parse the command-line arguments and return the result
     return parser.parse_args()
 
@@ -101,3 +110,13 @@ class CLI:
             Returns None if no target profile is specified.
         """
         return self.args.target
+
+    def get_top_x(self) -> int:
+        """
+        Retrieve the amount of configurations to print in the terminal.
+
+        Returns:
+            int: The top x configurations to print in the terminal, as specified by the user.
+            The default value is 10 if no argument is provided.
+        """
+        return self.args.top_x

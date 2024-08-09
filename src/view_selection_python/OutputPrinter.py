@@ -1,5 +1,6 @@
 from typing import Dict, List, Deque
 from tabulate import tabulate
+from .CLI import CLI
 
 
 class OutputPrinter:
@@ -49,7 +50,7 @@ class OutputPrinter:
         Returns:
             float: The percentage difference, rounded to three decimal places.
         """
-        percentage_diff = (config_cost / self.default_cost) - 1
+        percentage_diff = ((config_cost / self.default_cost) - 1) * 100
         return round(percentage_diff, 3)
 
     def _format_difference_cell(self, config_cost: int) -> str:
@@ -84,16 +85,37 @@ class OutputPrinter:
         """
         return config if config else 'None'
 
+    @staticmethod
+    def _get_number_of_configs_to_print() -> int:
+        """
+        Retrieves the number of configurations to display from the command-line interface.
+
+        This method initializes a CLI instance and fetches the number of top configurations
+        that the user wants to display.
+
+        Returns:
+            int: The number of configurations to print.
+        """
+        cli = CLI()
+        return cli.get_top_x()
+
     def print_output(self):
         """
         Prints a table of configurations and their percentage difference from the default cost.
 
-        The table includes two columns: 'Config' and '% Difference with default'.
+        This method retrieves the number of configurations to display, formats the data accordingly,
+        and then prints the table with two columns: 'Config' and '% Difference with default'.
+
+        The table only includes the top configurations as specified by the user.
+
         """
+        # Get number of configs to print
+        top_x = self._get_number_of_configs_to_print()
+
         # Extracting data for the table
         table_data = [
             (self._format_config_col(result['config']), self._format_difference_cell(result['total_config_cost']))
-            for result in self.results_sorted
+            for result in self.results_sorted[:top_x]
         ]
 
         # Printing the table
