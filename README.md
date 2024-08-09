@@ -33,7 +33,7 @@ Furthermore, the parts of the elementary package that are affected by this are n
 1. Include `ViewSelectionAdvisor` in your `packages.yml` file:
     ```yaml
       - git: "https://github.com/bramreinders97/view_selection_tool_dbt.git"
-        revision: 4b7990736f651ae08f8d4a7a260f2c10ad1d862b
+        revision: 7a6d08f923c50d8930fcbdc0dca1ab23bc934520
     ``` 
  
 2. Update your `dbt_project.yml` file:
@@ -117,6 +117,32 @@ Because `ViewSelectionAdvisor` relies entirely on the tables created by Elementa
    This command compares all possible materialization configurations, and advises on the configuration with 
    the lowest estimated cost. 
 
+### Output Explanation
+`ViewSelectionAdvisor` bases its suggestions on an estimate of the number of bytes processed when running your entire DAG. 
+The displayed percentages correspond to the expected **difference in bytes processed compared to the default materialization setting**, which only materializes the [destination nodes](## "Destination nodes are nodes in your DAG without an outgoing edge. In most cases, these nodes correspond to mart tables.").
+
+#### Example Output:
+
+Below is an example output from the `ViewSelectionAdvisor`. Each row represents a specific configuration of models considered for materialization, along with the corresponding percentage difference in bytes processed compared to the default setting.
+
+```shell
++----------------------------------------------------------------------------------------------------------------+---------------------------+
+|                                                     Config                                                     | % Difference with default |
++----------------------------------------------------------------------------------------------------------------+---------------------------+
+|          ('model.dbt_glue_proj.stg_imdb__name_basics', 'model.dbt_glue_proj.stg_imdb__title_basics')           |         -91.055%          |
+|          ('model.dbt_glue_proj.stg_imdb__title_basics', 'model.dbt_glue_proj.stg_imdb__title_crews')           |         -85.157%          |
+| ('model.dbt_glue_proj.stg_imdb__title_basics', 'model.dbt_glue_proj.int_directors_flattened_from_title_crews') |         -84.762%          |
++----------------------------------------------------------------------------------------------------------------+---------------------------+
+```
+
+#### Columns Explained:
+
+- **Config**: This column lists the selected models within the DAG that are considered for materialization in the given configuration.
+
+- **% Difference with default**: This column shows the percentage difference in the number of bytes processed when using the given configuration compared to the default materialization setting. A negative percentage indicates a reduction in bytes processed, a positive percentage an increase. 
+
+
+
 ### Possible Variables for `vst-advise`
 The following variables can be used to change the behavior of `vst-advise`: 
 
@@ -126,4 +152,5 @@ The following variables can be used to change the behavior of `vst-advise`:
 | `-mm <MAX_MATERIALIZATIONS>`, `--max_materializations <MAX_MATERIALIZATIONS>` | Set the maximum number of models to consider for materialization. Higher values provide more options but may increase runtime. Default is 2. |
 | `-p <PROFILE>`, `--profile <PROFILE>`                                         | Select the profile to use                                                                                                                    |
 | `-t <TARGET>`, `--target <TARGET>`                                            | Select the target profile to use                                                                                                             |
+| `-x <TOP_X>`, `--top_x <TOP_X>`                                               | Select the top x configurations to print in the terminal. Default is 10.                                                                     |
 
