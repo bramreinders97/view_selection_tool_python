@@ -110,7 +110,7 @@ Because `ViewSelectionAdvisor` relies entirely on the tables created by Elementa
    fills the database schema `x_view_selection_tool` with all information the
    python part of the `ViewSelectionAdvisor` requires in order to give a proper advice.
 
-   - **Transform Info From Elementary**:
+   - **Provide The Advice**:
    ```shell
    vst-advise
    ```
